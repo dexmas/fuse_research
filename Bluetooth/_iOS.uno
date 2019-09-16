@@ -4,6 +4,7 @@ using Uno.Compiler.ExportTargetInterop;
 
 namespace BlackCat
 {
+	[Require("Xcode.Framework", "CoreBluetooth.framework")]
 	[Require("Source.Include", "BluetoothImpl.hh")]
 	extern(iOS)
 	internal class Bluetooth_iOS: IBluetooth, IDisposable

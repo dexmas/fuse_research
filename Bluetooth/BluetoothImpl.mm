@@ -13,10 +13,10 @@ static char BTS_ADVERTISEMENT_RSSI_IDENTIFER;
     if (advertisementData) {
         id manufacturerData = [advertisementData objectForKey:CBAdvertisementDataManufacturerDataKey];
         if (manufacturerData) {
-            const uint8_t *bytes = [manufacturerData bytes];
+            const void *bytes = [manufacturerData bytes];
             long len = [manufacturerData length];
             // skip manufacturer uuid
-            NSData *data = [NSData dataWithBytes:bytes+2 length:len-2];
+            NSData *data = [NSData dataWithBytes:(const char*)bytes+2 length:len-2];
             [self setBtsAdvertising: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
         }
     }
@@ -43,7 +43,7 @@ static char BTS_ADVERTISEMENT_RSSI_IDENTIFER;
 
 @end
 
-@interface MEGBluetoothSerial()
+@interface BluetoothImpl()
 - (NSString *)readUntilDelimiter:(NSString *)delimiter;
 - (NSMutableArray *)getPeripheralList;
 - (void)sendDataToSubscriber;
@@ -63,15 +63,24 @@ static char BTS_ADVERTISEMENT_RSSI_IDENTIFER;
 static bool isConnected = false;
 static int rssi = 0;
 
+// TODO should have a configurable list of services
+CBUUID *redBearLabsServiceUUID;
+CBUUID *adafruitServiceUUID;
+CBUUID *lairdServiceUUID;
+CBUUID *blueGigaServiceUUID;
+CBUUID *hm10ServiceUUID;
+CBUUID *hc02ServiceUUID;
+CBUUID *hc02AdvUUID;
+CBUUID *serialServiceUUID;
+CBUUID *readCharacteristicUUID;
+CBUUID *writeCharacteristicUUID;
+
 - (void)Init {
 
     NSLog(@"Fuse Bluetooth Serial Plugin");
     NSLog(@"(c)2019 iDeXmas");
 
-
-    _bleShield = [[BLE alloc] init];
-    [_bleShield controlSetup];
-    [_bleShield setDelegate:self];
+    [self controlSetup];
 
     _buffer = [[NSMutableString alloc] init];
 }
@@ -130,9 +139,9 @@ static int rssi = 0;
 
 -(void)connectFirstDeviceTimer:(NSTimer *)timer {
 
-    if(_bleShield.peripherals.count > 0) {
+    if(peripherals.count > 0) {
         NSLog(@"Connecting");
-        [_bleShield connectPeripheral:[_bleShield.peripherals objectAtIndex:0]];
+        [self connectPeripheral:[peripherals objectAtIndex:0]];
     } else {
         NSString *error = @"Did not find any BLE peripherals";
         NSLog(@"%@", error);
@@ -146,7 +155,7 @@ static int rssi = 0;
     CBPeripheral *peripheral = [self findPeripheralByUUID:uuid];
 
     if (peripheral) {
-        [_bleShield connectPeripheral:peripheral];
+        [self connectPeripheral:peripheral];
     } else {
         NSString *error = [NSString stringWithFormat:@"Could not find peripheral %@.", uuid];
         NSLog(@"%@", error);
@@ -157,7 +166,7 @@ static int rssi = 0;
 
     NSString *callbackId = [timer userInfo];
 
-    int bluetoothState = [[_bleShield CM] state];
+    int bluetoothState = [CM state];
 
     BOOL enabled = bluetoothState == CBCentralManagerStatePoweredOn;
 }
@@ -180,11 +189,11 @@ static int rssi = 0;
 
 - (NSMutableArray*) getPeripheralList {
 
-    NSMutableArray *peripherals = [NSMutableArray array];
+    NSMutableArray *per = [NSMutableArray array];
 
-    for (int i = 0; i < _bleShield.peripherals.count; i++) {
+    for (int i = 0; i < peripherals.count; i++) {
         NSMutableDictionary *peripheral = [NSMutableDictionary dictionary];
-        CBPeripheral *p = [_bleShield.peripherals objectAtIndex:i];
+        CBPeripheral *p = [per objectAtIndex:i];
 
         NSString *uuid = p.identifier.UUIDString;
         [peripheral setObject: uuid forKey: @"uuid"];
@@ -212,11 +221,6 @@ static int rssi = 0;
     NSString *message = [self readUntilDelimiter:_delimiter];
 
     if ([message length] > 0) {
-        CDVPluginResult *pluginResult = nil;
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: message];
-        [pluginResult setKeepCallbackAsBool:TRUE];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:_subscribeCallbackId];
-
         [self sendDataToSubscriber];
     }
 
@@ -228,20 +232,20 @@ static int rssi = 0;
     NSLog(@"Scanning for BLE Peripherals");
 
     // disconnect
-    if (_bleShield.activePeripheral) {
-        if(_bleShield.activePeripheral.state == CBPeripheralStateConnected)
+    if (activePeripheral) {
+        if(activePeripheral.state == CBPeripheralStateConnected)
         {
-            [[_bleShield CM] cancelPeripheralConnection:[_bleShield activePeripheral]];
+            [CM cancelPeripheralConnection:activePeripheral];
             return;
         }
     }
 
     // remove existing peripherals
-    if (_bleShield.peripherals) {
-        _bleShield.peripherals = nil;
+    if (peripherals) {
+        peripherals = nil;
     }
 
-    [_bleShield findBLEPeripherals:timeout];
+    [self findBLEPeripherals:timeout];
 }
 
 - (void)connectToFirstDevice {
@@ -257,7 +261,7 @@ static int rssi = 0;
 
     int interval = 0;
 
-    if (_bleShield.peripherals.count < 1) {
+    if (peripherals.count < 1) {
         interval = 3;
         [self scanForBLEPeripherals:interval];
     }
@@ -271,7 +275,7 @@ static int rssi = 0;
 
 - (CBPeripheral*)findPeripheralByUUID:(NSString*)uuid {
 
-    NSMutableArray *peripherals = [_bleShield peripherals];
+    NSMutableArray *peripherals = peripherals;
     CBPeripheral *peripheral = nil;
 
     for (CBPeripheral *p in peripherals) {
@@ -371,12 +375,13 @@ static int rssi = 0;
 
     if ([data length] == 2)
     {
-        const unsigned char *tokenBytes = [data bytes];
+        const char *tokenBytes = (const char*)[data bytes];
         return [NSString stringWithFormat:@"%02x%02x", tokenBytes[0], tokenBytes[1]];
     }
     else if ([data length] == 16)
     {
-        NSUUID* nsuuid = [[NSUUID alloc] initWithUUIDBytes:[data bytes]];
+        NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSUUID* nsuuid = [[NSUUID alloc] initWithUUIDString: string];
         return [nsuuid UUIDString];
     }
 
@@ -458,7 +463,7 @@ static int rssi = 0;
 
 - (int) findBLEPeripherals:(int) timeout
 {
-    if (self.CM.state != CBCentralManagerStatePoweredOn)
+    if (self.CM.state != CBManagerStatePoweredOn)
     {
         NSLog(@"CoreBluetooth not correctly initialized !");
         NSLog(@"State = %ld (%s)\r\n", (long)self.CM.state, [self centralManagerStateToString:self.CM.state]);
@@ -491,7 +496,7 @@ static int rssi = 0;
 {
     done = false;
 
-    [[self delegate] bleDidDisconnect];
+    [self bleDidDisconnect];
 
     isConnected = false;
 }
@@ -595,8 +600,8 @@ static int rssi = 0;
 {
     char b1[16];
     char b2[16];
-    [UUID1.data getBytes:b1];
-    [UUID2.data getBytes:b2];
+    [UUID1.data getBytes:b1 length:16];
+    [UUID2.data getBytes:b2 length:16];
 
     if (memcmp(b1, b2, UUID1.data.length) == 0)
         return 1;
@@ -608,7 +613,7 @@ static int rssi = 0;
 {
     char b1[16];
 
-    [UUID1.data getBytes:b1];
+    [UUID1.data getBytes:b1 length:16];
     UInt16 b2 = [self swap:UUID2];
 
     if (memcmp(b1, (char *)&b2, 2) == 0)
@@ -620,7 +625,7 @@ static int rssi = 0;
 -(UInt16) CBUUIDToInt:(CBUUID *) UUID
 {
     char b1[16];
-    [UUID.data getBytes:b1];
+    [UUID.data getBytes:b1 length:16];
     return ((b1[0] << 8) | b1[1]);
 }
 
@@ -715,6 +720,8 @@ static int rssi = 0;
         for(int i = 0; i < self.peripherals.count; i++)
         {
             CBPeripheral *p = [self.peripherals objectAtIndex:i];
+            p.delegate = self;
+            
             [p bts_setAdvertisementData:advertisementData RSSI:RSSI];
 
             if ((p.identifier == NULL) || (peripheral.identifier == NULL))
@@ -767,7 +774,7 @@ static bool done = false;
                 if (!done)
                 {
                     [self enableReadNotification:activePeripheral];
-                    [[self delegate] bleDidConnect];
+                    [self bleDidConnect];
                     isConnected = true;
                     done = true;
                 }
@@ -880,7 +887,7 @@ static bool done = false;
 
                 if (len >= 64)
                 {
-                    [[self delegate] bleDidReceiveData:buf length:len];
+                    [self bleDidReceiveData:buf length:len];
                     len = 0;
                 }
             }
@@ -889,7 +896,7 @@ static bool done = false;
                 memcpy(&buf[len], data, data_len);
                 len += data_len;
 
-                [[self delegate] bleDidReceiveData:buf length:len];
+                [self bleDidReceiveData:buf length:len];
                 len = 0;
             }
         }
@@ -900,16 +907,17 @@ static bool done = false;
     }
 }
 
-- (void)peripheralDidUpdateRSSI:(CBPeripheral *)peripheral error:(NSError *)error
-{
+-(void) peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(NSError *)error {
+    
     if (!isConnected)
         return;
-
-    if (rssi != peripheral.RSSI.intValue)
+    
+    if (rssi != RSSI.intValue)
     {
-        rssi = peripheral.RSSI.intValue;
-        [[self delegate] bleDidUpdateRSSI:activePeripheral.RSSI];
+        rssi = RSSI.intValue;
+        [self bleDidUpdateRSSI:RSSI];
     }
 }
+
 
 @end
