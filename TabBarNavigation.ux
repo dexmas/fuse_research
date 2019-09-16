@@ -1,0 +1,124 @@
+<App Background="#333">
+	<JavaScript>
+		var pages = [
+			{"name":"page1", "highlight":"#34495e", "icon":"Assets/icon-hexagon.png"},
+			{"name":"page2", "highlight":"#3498db", "icon":"Assets/icon-star.png"},
+			{"name":"page3", "highlight":"#aa3377", "icon":"Assets/icon-square.png"},
+			{"name":"page4", "highlight":"#88cc22", "icon":"Assets/icon-triangle.png"}
+		];
+		var colors = ["#f00", "#0f0", "#00f"];
+		var Observable = require("FuseJS/Observable");
+		var Sensor = require("FuseJS/Sensor");
+		var vibration = require("FuseJS/Vibration");
+		var GeoLocation = require("FuseJS/GeoLocation");
+		var Bluetooth = require("BlackCat/Bluetooth");
+
+		var jsondata = Observable();
+		var latitude = Observable("")
+		var longitude = Observable("");
+		var circleX = Observable("");
+		var circleY = Observable("");
+		var circleScale = Observable("");
+
+		fetch('https://gist.githubusercontent.com/petterroea/5ed146454706990ea8386f147d592eff/raw/b157cfed331da3cb88150051ab74aa131022fef8/colors.json')
+            .then(function(response) { return response.json(); })
+            .then(function(responseObject) { jsondata.replaceAll(responseObject); });
+
+		Sensor.on("changed", function(data) {
+			if (data.type == Sensor.ACCELEROMETER) {
+				//console.log("X axis : " + data.x + " Y axis : " + data.y + " Z axis : " + data.z);
+
+				circleX.value = data.x * 5;
+				circleY.value = data.y * 5;
+				circleScale.value = data.z * 0.1 + 0.1;
+			}
+		});
+
+		latitude.value = "nodata";
+		longitude.value = "nodata";
+
+		GeoLocation.onChanged = function(data) {
+			console.log("GPS data: " + JSON.stringify(data));
+			latitude.value = JSON.stringify(data["latitude"]);
+			longitude.value = JSON.stringify(data["longitude"]);
+		};
+
+		GeoLocation.startListening(1000, 10);
+		Sensor.startListening(Sensor.ACCELEROMETER);
+
+		Bluetooth.list();
+		Bluetooth.connect();
+		Bluetooth.on("receive", function(data) {
+
+		});
+
+        function Vibrate() {
+			console.log("Vibrate");
+            vibration.vibrate(1.0);
+        }
+
+		module.exports = {
+			pages: pages,
+			pageCount: pages.length,
+			colors: colors,
+			jsondata: jsondata,
+			latitude: latitude,
+			longitude: longitude,
+			Vibrate: Vibrate,
+			circleX: circleX,
+			circleY: circleY,
+			circleScale: circleScale
+		};
+	</JavaScript>
+
+	<Page ux:Class="MyPage">
+		<ResourceFloat4 Key="Highlight" Value="{highlight}" />
+		<FileImageSource ux:Key="Icon" File="{icon}" />
+		<Circle Width="40" Height="40" Fill="#F2AF5C" Alignment="BottomCenter" Y="-20%">
+			<Translation X="{circleX}" Y="{circleY}" />
+			<Scaling Factor="{circleScale}" />
+		</Circle>
+		<StackPanel Orientation="Vertical" ItemSpacing="0" Alignment="Top" Margin="0, 0, 0, 0">
+			<Text Value="GPS: {latitude}, {longitude}" TextColor="#FCFCFC" Margin="15, 5, 15, 0" />
+			<Each Items="{jsondata}">
+				<Rectangle CornerRadius="10" Color="{hexValue}" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
+					<Text Value="Color: {colorName}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="30%" />
+				</Rectangle>
+			</Each>
+		</StackPanel>
+		<Button Text="Show dialog" Width="150" Height="50" Alignment="BottomCenter" Background="#4F39C1" Margin="0, 0, 0, 10">
+			<Clicked Handler="{Vibrate}" />
+			<Shadow Color="#020000" />
+		</Button>
+		<Rectangle Color="{highlight}" />
+	</Page>
+
+
+	<DockPanel>
+		<StatusBarBackground Dock="Top" />
+		<BottomBarBackground Dock="Bottom" />
+
+		<PageControl ux:Name="pages">
+			<Each Items="{pages}">
+				<MyPage />
+			</Each>
+		</PageControl>
+
+		<PageIndicator Dock="Bottom" Height="45" Navigation="pages">
+			<GridLayout ColumnCount="{pageCount}" />
+			<Panel ux:Template="Dot" Height="45">
+				<ActivatingAnimation>
+					<Scale Target="icon" Factor="1.5" />
+				</ActivatingAnimation>
+				<Clicked>
+					<NavigateTo Target="{Page Visual}" />
+				</Clicked>
+				<Panel ux:Name="icon" Padding="10">
+					<Image Source="{Page Icon}" />
+				</Panel>
+				<Rectangle Color="{Page Highlight}" />
+			</Panel>
+		</PageIndicator>
+
+	</DockPanel>
+</App>

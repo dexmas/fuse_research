@@ -1,0 +1,38 @@
+{
+	"Title": "BlackCat",
+	"Description": "Test app with Fuse technology for cross-platform mobile development.",
+	"Publisher": "iDeXmas",
+	"Version": "0.0.1",
+
+	"RootNamespace": "",
+	"Packages": [
+		"Fuse",
+		"FuseJS",
+		"Fuse.Vibration",
+		"Fuse.GeoLocation",
+		"Fuse.Sensor"
+	],
+	"Mobile": {
+		"Orientations": "Portrait"
+	},
+	"iOS": {
+		"BundleVersion": "$(Version)",
+		"BundleIdentifier": "com.dexmas.bctest"
+	},
+	"Android": {
+		"VersionName": "$(Version)",
+	},
+  "Includes": [
+    "TabBarNavigation.ux:UXFile",
+    "Assets/icon-*.png:Bundle",
+	
+	"Bluetooth/Module.uno",
+	"Bluetooth/_Android.uno",
+	"Bluetooth/_iOS.uno",
+	"Bluetooth/Bluetooth.uno",
+	"Bluetooth/BluetoothImpl.java:Java:Android",
+	"Bluetooth/BluetoothService.java:Java:Android",
+	"Bluetooth/BluetoothImpl.hh:CHeader:iOS",
+	"Bluetooth/BluetoothImpl.mm:CSource:iOS"
+  ]
+}
