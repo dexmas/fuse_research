@@ -33,6 +33,11 @@
 	"Bluetooth/BluetoothImpl.java:Java:Android",
 	"Bluetooth/BluetoothService.java:Java:Android",
 	"Bluetooth/BluetoothImpl.hh:CHeader:iOS",
-	"Bluetooth/BluetoothImpl.mm:CSource:iOS"
+	"Bluetooth/BluetoothImpl.mm:CSource:iOS",
+
+	"Discovery/Module.uno",
+	"Discovery/serviceDiscovery.java:Java:Android",
+	"Discovery/serviceDiscovery.h:CHeader:iOS",
+	"Discovery/serviceDiscovery.m:CSource:iOS"
   ]
 }

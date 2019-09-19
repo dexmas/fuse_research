@@ -12,6 +12,7 @@
 		var vibration = require("FuseJS/Vibration");
 		var GeoLocation = require("FuseJS/GeoLocation");
 		var Bluetooth = require("BlackCat/Bluetooth");
+		var Discovery = require("BlackCat/Discovery");
 
 		var jsondata = Observable();
 		var latitude = Observable("")
@@ -26,8 +27,6 @@
 
 		Sensor.on("changed", function(data) {
 			if (data.type == Sensor.ACCELEROMETER) {
-				//console.log("X axis : " + data.x + " Y axis : " + data.y + " Z axis : " + data.z);
-
 				circleX.value = data.x * 5;
 				circleY.value = data.y * 5;
 				circleScale.value = data.z * 0.1 + 0.1;
