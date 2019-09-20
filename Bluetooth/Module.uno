@@ -8,8 +8,7 @@ namespace BlackCat
 	public class BluetoothModule : NativeEventEmitterModule
 	{
 		static readonly BluetoothModule _instance;
-
-		readonly BlackCat.Bluetooth _bluetooth;
+		readonly Bluetooth _bluetooth;
 
 		public BluetoothModule() : base(true, "open", "error", "close", "receive")
 		{

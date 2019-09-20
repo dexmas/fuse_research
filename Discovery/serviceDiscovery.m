@@ -1,14 +1,21 @@
 #import "serviceDiscovery.h"
 
 NSMutableArray *serviceArr;
+serviceCallback Callback;
 
 @implementation serviceDiscovery
 
+- (instancetype)create: (serviceCallback) callback
+{
+    Callback = callback;
+    self = [super init];
+    return self;
+}
 /*
  * Does a service discovery for the given service type. Returns an array of
  * all the services discovered.
  */
-- (void)getNetworkServices: (serviceCallback) callback;
+- (void)getNetworkServices
 {
     NSString* serviceType = [command.arguments objectAtIndex:0];
     [self runInBackground:^{
@@ -115,7 +122,7 @@ NSMutableArray *serviceArr;
             }
         }
 
-        callback(result, serviceArr);
+        Callback(NSString *string = [serviceArr componentsJoinedByString:@","];);
     }}];
 }
 

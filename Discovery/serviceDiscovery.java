@@ -19,18 +19,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.app.Activity;
+import android.util.Log;
 
-import com.foreign.Uno.Action_Object;
+import com.foreign.Uno.*;
 
 public class serviceDiscovery
 {
     private static final String TAG = "com.blackcat";
+
+    Action_String Callback;
     private JSONArray mDeviceList;
     private Context mContext;
 
-    public serviceDiscovery()
+    public serviceDiscovery(Action_String _callback)
     {
-        mContext = context;
+        Callback = _callback;
+        mContext = com.fuse.Activity.getRootActivity().getApplicationContext();
     }
 
     public static String parseHeaderValue(String content, String headerName) 
@@ -55,7 +60,6 @@ public class serviceDiscovery
 
     private void createServiceObjWithXMLData(String url, final JSONObject jsonObj) 
     {
-
         SyncHttpClient syncRequest = new SyncHttpClient();
         syncRequest.get(mContext.getApplicationContext(), url, new AsyncHttpResponseHandler() 
         {
@@ -74,12 +78,12 @@ public class serviceDiscovery
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) 
             {
-                LOG.e(TAG, responseBody.toString());
+                Log.e(TAG, responseBody.toString());
             }
         });
     }
 
-    public void search(String service, Action_Object callbackContext) throws IOException 
+    public void search(String service) throws IOException 
     {
         final int SSDP_PORT = 1900;
         final int SSDP_SEARCH_PORT = 1901;
@@ -141,7 +145,7 @@ public class serviceDiscovery
                         e.printStackTrace();
                     }
                 } catch (SocketTimeoutException e) {
-                    callbackContext.run(mDeviceList);
+                    Callback.run(mDeviceList.toString());
                     break;
                 }
             }

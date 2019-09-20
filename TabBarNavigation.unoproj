@@ -36,6 +36,9 @@
 	"Bluetooth/BluetoothImpl.mm:CSource:iOS",
 
 	"Discovery/Module.uno",
+	"Discovery/_Android.uno",
+	"Discovery/_iOS.uno",
+	"Discovery/Discovery.uno",
 	"Discovery/serviceDiscovery.java:Java:Android",
 	"Discovery/serviceDiscovery.h:CHeader:iOS",
 	"Discovery/serviceDiscovery.m:CSource:iOS"

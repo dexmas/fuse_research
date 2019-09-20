@@ -11,13 +11,12 @@ namespace BlackCat
 		void Disconnect();
 	}
 
-	public class Bluetooth_Stub: IBluetooth, IDisposable
+	public class Bluetooth_Stub: IBluetooth
 	{
 		public void Create(Action open, Action close, Action<string> error, Action<byte[]> receive) {}
 		public void Send(byte[] data) {}
 		public void Connect() {}
 		public void Disconnect() {}
-		public void Dispose() {}
 	}
 
 	public class Bluetooth

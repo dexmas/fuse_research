@@ -48,10 +48,16 @@
 		Bluetooth.list();
 		Bluetooth.connect();
 		Bluetooth.on("receive", function(data) {
+			
+		});
 
+		Discovery.on("list", function(list){
+			console.log("Discovered: " + list);
 		});
 
         function Vibrate() {
+			Discovery.Search();
+
 			console.log("Vibrate");
             vibration.vibrate(1.0);
         }

@@ -5,8 +5,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-typedef void (^serviceCallback)(NSString* result, NSMutableArray* array);
+typedef void (^serviceCallback)(NSString* list);
 
 @interface serviceDiscovery
-- (void)getNetworkServices: (serviceCallback) callback;
+- (instancetype)create: (serviceCallback) callback;
+- (void)search;
 @end
