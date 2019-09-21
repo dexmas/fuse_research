@@ -5,7 +5,7 @@ serviceCallback Callback;
 
 @implementation serviceDiscovery
 
-- (instancetype)create: (serviceCallback) callback
+- (instancetype)initWith: (serviceCallback) callback
 {
     Callback = callback;
     self = [super init];
@@ -15,13 +15,12 @@ serviceCallback Callback;
  * Does a service discovery for the given service type. Returns an array of
  * all the services discovered.
  */
-- (void)getNetworkServices
+- (void)search: (NSString*)services
 {
-    NSString* serviceType = [command.arguments objectAtIndex:0];
-    [self runInBackground:^{
-
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    ^{
     NSString* result = nil;
-    if (serviceType == nil)
+    if (services == nil)
     {
         result = @"service not provided";
     }
@@ -56,7 +55,7 @@ serviceCallback Callback;
                 broadcastAddr.sin_port = htons(1900);
 
                 // Send the broadcast request for the given service type
-                NSString *request = [[@"M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1900\r\nMAN: \"ssdp:discover\"\r\nST: " stringByAppendingString:serviceType] stringByAppendingString:@"\r\nMX: 2\r\n\r\n"];
+                NSString *request = [[@"M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1900\r\nMAN: \"ssdp:discover\"\r\nST: " stringByAppendingString:services] stringByAppendingString:@"\r\nMX: 2\r\n\r\n"];
                 char *requestStr = [request UTF8String];
 
                 ret = sendto(sd, requestStr, strlen(requestStr), 0, (struct sockaddr*)&broadcastAddr, sizeof broadcastAddr);
@@ -115,15 +114,13 @@ serviceCallback Callback;
 
                         free(buf);
                         close(sd);
-
-                        result = messageAsArray:serviceArr;
                     }
                 }
             }
         }
 
-        Callback(NSString *string = [serviceArr componentsJoinedByString:@","];);
-    }}];
+        Callback([serviceArr componentsJoinedByString:@","]);
+    }});
 }
 
 /*

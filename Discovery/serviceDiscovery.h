@@ -7,7 +7,7 @@
 
 typedef void (^serviceCallback)(NSString* list);
 
-@interface serviceDiscovery
-- (instancetype)create: (serviceCallback) callback;
-- (void)search;
+@interface serviceDiscovery : NSObject
+- (instancetype)initWith: (serviceCallback) callback;
+- (void)search: (NSString*)services;
 @end
