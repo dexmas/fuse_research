@@ -25,11 +25,7 @@ namespace BlackCat
 		public void Search()
 		@{
             com.blackcat.serviceDiscovery impl = (com.blackcat.serviceDiscovery)@{Discovery_Android:Of(_this)._impl:Get()};
-            try {
-                impl.search("ssdp:all");
-            } catch(java.io.IOException e) {
-				Log.e("com.blackcat.Discovery: ",e.getMessage());
-			}
+            impl.search("ssdp:all");
 		@}
 
 		public void Dispose()

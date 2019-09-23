@@ -12,6 +12,8 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.io.IOException;
 
 import org.json.JSONArray;
@@ -31,11 +33,13 @@ public class serviceDiscovery
     Action_String Callback;
     private JSONArray mDeviceList;
     private Context mContext;
+    private ExecutorService threadPool;
 
     public serviceDiscovery(Action_String _callback)
     {
         Callback = _callback;
         mContext = com.fuse.Activity.getRootActivity().getApplicationContext();
+        threadPool = Executors.newCachedThreadPool();
     }
 
     public static String parseHeaderValue(String content, String headerName) 
@@ -83,7 +87,21 @@ public class serviceDiscovery
         });
     }
 
-    public void search(String service) throws IOException 
+    public void search(final String service)
+    {
+        threadPool.execute(new Runnable() {
+               @Override
+               public void run() {
+                  try {
+                    searchThread(service);
+                    } catch(IOException e){
+                      Log.e(TAG, e.toString());
+                    }
+               }
+            });
+    }
+
+    private void searchThread(final String service) throws IOException 
     {
         final int SSDP_PORT = 1900;
         final int SSDP_SEARCH_PORT = 1901;
