@@ -148,7 +148,18 @@ serviceCallback Callback;
             data[part1] = part2;
         }
     }
-    [serviceArr addObject: data];
+
+    NSURL *url = [NSURL URLWithString: data["LOCATION"]];
+    NSURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:5];
+    NSURLResponse * response = nil;
+    NSError * error = nil;
+    NSData * rdata = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+
+    if (response != nil) {
+        data[@"xml"] = [[NSString alloc] initWithData: rdata encoding:NSUTF8StringEncoding];
+        [serviceArr addObject: data];
+    } else
+        NSLog(@"Error during fetch discovered XML data");
 }
 
 @end
