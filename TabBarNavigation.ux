@@ -21,9 +21,9 @@
 		var circleY = Observable("");
 		var circleScale = Observable("");
 
-		fetch('https://gist.githubusercontent.com/petterroea/5ed146454706990ea8386f147d592eff/raw/b157cfed331da3cb88150051ab74aa131022fef8/colors.json')
+		/*fetch('https://gist.githubusercontent.com/petterroea/5ed146454706990ea8386f147d592eff/raw/b157cfed331da3cb88150051ab74aa131022fef8/colors.json')
             .then(function(response) { return response.json(); })
-            .then(function(responseObject) { jsondata.replaceAll(responseObject); });
+            .then(function(responseObject) { jsondata.replaceAll(responseObject); });*/
 
 		Sensor.on("changed", function(data) {
 			if (data.type == Sensor.ACCELEROMETER) {
@@ -52,7 +52,7 @@
 		});
 
 		Discovery.on("list", function(list){
-			console.log("Discovered: " + list);
+			jsondata.replaceAll(JSON.parse(list));
 		});
 
         function Vibrate() {
@@ -83,18 +83,21 @@
 			<Translation X="{circleX}" Y="{circleY}" />
 			<Scaling Factor="{circleScale}" />
 		</Circle>
-		<StackPanel Orientation="Vertical" ItemSpacing="0" Alignment="Top" Margin="0, 0, 0, 0">
-			<Text Value="GPS: {latitude}, {longitude}" TextColor="#FCFCFC" Margin="15, 5, 15, 0" />
-			<Each Items="{jsondata}">
-				<Rectangle CornerRadius="10" Color="{hexValue}" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
-					<Text Value="Color: {colorName}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="30%" />
-				</Rectangle>
-			</Each>
-		</StackPanel>
 		<Button Text="Show dialog" Width="150" Height="50" Alignment="BottomCenter" Background="#4F39C1" Margin="0, 0, 0, 10">
 			<Clicked Handler="{Vibrate}" />
 			<Shadow Color="#020000" />
 		</Button>
+		<ScrollView>
+			<StackPanel Orientation="Vertical" ItemSpacing="0" Alignment="Top" Margin="0, 0, 0, 0">
+				<Text Value="GPS: {latitude}, {longitude}" TextColor="#FCFCFC" Margin="15, 5, 15, 0" />
+				<Each Items="{jsondata}">
+					<Rectangle CornerRadius="10" Color="#0C00FF" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
+						<Text Value="{LOCATION}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="30%" />
+					</Rectangle>
+				</Each>
+			</StackPanel>
+		</ScrollView>
+		
 		<Rectangle Color="{highlight}" />
 	</Page>
 

@@ -70,13 +70,13 @@ public class serviceDiscovery
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) 
             {
-                try {
+                //try {
                     JSONObject device = jsonObj;
-                    device.put("xml", new String(responseBody));
+                    //device.put("xml", new String(responseBody));
                     mDeviceList.put(device);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                //} catch (JSONException e) {
+                //    e.printStackTrace();
+                //}
             }
 
             @Override
@@ -106,7 +106,7 @@ public class serviceDiscovery
         final int SSDP_PORT = 1900;
         final int SSDP_SEARCH_PORT = 1901;
         final String SSDP_IP = "239.255.255.250";
-        int TIMEOUT = 3000;
+        int TIMEOUT = 5000;
 
         InetSocketAddress srcAddress = new InetSocketAddress(SSDP_SEARCH_PORT);
         InetSocketAddress dstAddress = new InetSocketAddress(InetAddress.getByName(SSDP_IP), SSDP_PORT);
@@ -154,9 +154,9 @@ public class serviceDiscovery
                     String message = new String(receivePacket.getData());   
                     try {
                         JSONObject device = new JSONObject();
-                        device.put("USN", parseHeaderValue(message, "USN"));
+                        //device.put("USN", parseHeaderValue(message, "USN"));
                         device.put("LOCATION", parseHeaderValue(message, "LOCATION"));
-                        device.put("ST", parseHeaderValue(message, "ST"));
+                        //device.put("ST", parseHeaderValue(message, "ST"));
                         device.put("Server", parseHeaderValue(message, "Server"));
                         createServiceObjWithXMLData(parseHeaderValue(message, "LOCATION"), device);
                     } catch (JSONException e) {
