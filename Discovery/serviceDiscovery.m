@@ -119,7 +119,8 @@ serviceCallback Callback;
             }
         }
 
-        Callback([serviceArr componentsJoinedByString:@","]);
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serviceArr options:0 error:nil];
+        Callback([[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
     }});
 }
 
