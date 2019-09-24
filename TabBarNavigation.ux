@@ -52,7 +52,8 @@
 		});
 
 		Discovery.on("list", function(list){
-			jsondata.replaceAll(JSON.parse(list));
+			var jlist = JSON.parse(list);
+			jsondata.replaceAll(jlist);
 		});
 
         function Vibrate() {
@@ -91,7 +92,7 @@
 			<StackPanel Orientation="Vertical" ItemSpacing="0" Alignment="Top" Margin="0, 0, 0, 0">
 				<Text Value="GPS: {latitude}, {longitude}" TextColor="#FCFCFC" Margin="15, 5, 15, 0" />
 				<Each Items="{jsondata}">
-					<Rectangle CornerRadius="10" Color="#0C00FF" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
+					<Rectangle CornerRadius="10" Color="#9C97FC" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
 						<Text Value="{LOCATION}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="30%" />
 					</Rectangle>
 				</Each>
