@@ -10,7 +10,7 @@ import android.content.BroadcastReceiver;
 import android.os.Handler;
 import android.os.Message;
 
-import com.fuse.Activity;
+import android.app.Activity;
 
 public class BluetoothImpl
 {
@@ -25,13 +25,24 @@ public class BluetoothImpl
 	public static final int MESSAGE_TOAST = 5;
 	public static final int MESSAGE_READ_RAW = 6;
 
+	private static final String TAG = "BluetoothSerial";
+
 	StringBuffer buffer = new StringBuffer();
 	private String delimiter;
 
+	private JSONObject deviceToJSON(BluetoothDevice device) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("name", device.getName());
+        json.put("address", device.getAddress());
+        json.put("id", device.getAddress());
+        if (device.getBluetoothClass() != null) {
+            json.put("class", device.getBluetoothClass().getDeviceClass());
+        }
+        return json;
+    }
+
 	public BluetoothImpl()
 	{
-		Context context = (Context)Activity.getRootActivity();
-
 		if (bluetoothAdapter == null) {
 			bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		}
@@ -46,6 +57,58 @@ public class BluetoothImpl
             bluetoothSerialService.stop();
         }
     }
+
+	public void List() {
+        final BroadcastReceiver discoverReceiver = new BroadcastReceiver() {
+
+            private JSONArray unpairedDevices = new JSONArray();
+
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    try {
+                    	JSONObject o = deviceToJSON(device);
+                        unpairedDevices.put(o);
+                    } catch (JSONException e) {
+                        // This shouldn't happen, log and ignore
+                        Log.e(TAG, "Problem converting device to JSON", e);
+                    }
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                    //TODO: Return result (unpairedDevices)
+                }
+            }
+        };
+
+        Activity activity = com.fuse.Activity.getRootActivity();
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+
+        bluetoothAdapter.startDiscovery();
+	}
+
+	public void Connect(String _name) {
+		boolean secure = false;
+		String macAddress = _name;
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
+
+        if (device != null) {
+            bluetoothSerialService.connect(device, secure);
+            buffer.setLength(0);
+            //TODO: Return result (connected)
+
+        } else {
+            Log.e(TAG, "Could not connect to ", macAddress);
+        }
+	}
+
+	public void Disconnect() {
+		bluetoothSerialService.stop();
+	}
+
+	public void Send(byte[] _data) {
+        bluetoothSerialService.write(_data);
+	}
 
 	// The Handler that gets information back from the BluetoothService
 	// Original code used handler for the because it was talking to the UI.

@@ -6,16 +6,18 @@ namespace BlackCat
 	internal interface IBluetooth
 	{
 		void Create(Action open, Action close, Action<string> error, Action<byte[]> receive);
+		void List();
 		void Send(byte[] data);
-		void Connect();
+		void Connect(string _name);
 		void Disconnect();
 	}
 
 	public class Bluetooth_Stub: IBluetooth
 	{
 		public void Create(Action open, Action close, Action<string> error, Action<byte[]> receive) {}
-		public void Send(byte[] data) {}
-		public void Connect() {}
+		public void List() {}
+		public void Send(byte[] _data) {}
+		public void Connect(string _name) {}
 		public void Disconnect() {}
 	}
 
@@ -70,14 +72,19 @@ namespace BlackCat
 				OnError(error);
 		}
 
-		public void Send(byte[] data)
+		public void List()
 		{
-			_impl.Send(data);
+			_impl.List();
 		}
 
-		public void Connect()
+		public void Send(byte[] _data)
 		{
-			_impl.Connect();
+			_impl.Send(_data);
+		}
+
+		public void Connect(string _name)
+		{
+			_impl.Connect(_name);
 		}
 
 		public void Disconnect()

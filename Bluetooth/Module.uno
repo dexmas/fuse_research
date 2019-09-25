@@ -34,7 +34,7 @@ namespace BlackCat
 
 		void _OnError(string message)
 		{
-			Emit("receive", message);
+			Emit("error", message);
 		}
 
 		void _OnClosed()
@@ -49,16 +49,20 @@ namespace BlackCat
 
 		object _List(Context c, object[] args)
 		{
+			_bluetooth.List();
 			return null;
 		}
 
 		object _Connect(Context c, object[] args)
 		{
+			_bluetooth.Connect(args[0] as string);
+			
 			return null;
 		}
 
 		object _Disconnect(Context c, object[] args)
 		{
+			_bluetooth.Disconnect();
 			return null;
 		}
 

@@ -19,6 +19,7 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.XML;
 
 import android.content.Context;
 import android.app.Activity;
@@ -70,13 +71,13 @@ public class serviceDiscovery
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) 
             {
-                //try {
+                try {
                     JSONObject device = jsonObj;
-                    //device.put("xml", new String(responseBody));
+                    device.put("xml", XML.toJSONObject(new String(responseBody)).toString());
                     mDeviceList.put(device);
-                //} catch (JSONException e) {
-                //    e.printStackTrace();
-                //}
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

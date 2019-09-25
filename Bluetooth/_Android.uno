@@ -18,7 +18,13 @@ namespace BlackCat
 		@}
 
 		[Foreign(Language.Java)]
-		public void Connect()
+		public void List() 
+		@{
+
+		@}
+
+		[Foreign(Language.Java)]
+		public void Connect(string _name)
 		@{
 
 		@}

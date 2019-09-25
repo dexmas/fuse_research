@@ -17,7 +17,13 @@ namespace BlackCat
 		}
 
 		[Foreign(Language.ObjC)]
-		public void Connect()
+		public void List() 
+		@{
+
+		@}
+
+		[Foreign(Language.ObjC)]
+		public void Connect(string _name)
 		@{
 
 		@}
