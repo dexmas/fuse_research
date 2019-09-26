@@ -5,7 +5,7 @@ using Uno.Compiler.ExportTargetInterop;
 namespace BlackCat
 {
     [Require("Gradle.Dependency.Implementation", "com.loopj.android:android-async-http:1.4.9")]
-	[Require("Gradle.Dependency.Implementation", "org.json:json:20180813")]
+	[Require("Gradle.Dependency.Implementation", "org.json:json:20180130")]
 	[ForeignInclude(Language.Java, "com.foreign.Uno.*",
                                    "java.io.IOException",
                                    "android.util.Log")]

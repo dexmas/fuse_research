@@ -73,7 +73,8 @@ public class serviceDiscovery
             {
                 try {
                     JSONObject device = jsonObj;
-                    device.put("xml", XML.toJSONObject(new String(responseBody)).toString());
+                    String xmlstring = new String(responseBody);
+                    device.put("xml", XML.toJSONObject(xmlstring));
                     mDeviceList.put(device);
                 } catch (JSONException e) {
                     e.printStackTrace();

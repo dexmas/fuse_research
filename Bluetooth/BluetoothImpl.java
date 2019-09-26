@@ -2,15 +2,22 @@ package com.blackcat;
 
 import android.hardware.*;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Handler;
 import android.os.Message;
 
 import android.app.Activity;
+import android.util.Log;
 
 public class BluetoothImpl
 {
@@ -98,7 +105,7 @@ public class BluetoothImpl
             //TODO: Return result (connected)
 
         } else {
-            Log.e(TAG, "Could not connect to ", macAddress);
+            Log.e(TAG, "Could not connect to " + macAddress);
         }
 	}
 
