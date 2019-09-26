@@ -46,7 +46,7 @@
 		Sensor.startListening(Sensor.ACCELEROMETER);
 
 		Bluetooth.list();
-		Bluetooth.connect();
+		Bluetooth.connect("");
 		Bluetooth.on("receive", function(data) {
 			
 		});

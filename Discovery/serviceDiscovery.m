@@ -149,7 +149,7 @@ serviceCallback Callback;
         }
     }
 
-    NSURL *url = [NSURL URLWithString: data["LOCATION"]];
+    NSURL *url = [NSURL URLWithString: data[@"LOCATION"]];
     NSURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:5];
     NSURLResponse * response = nil;
     NSError * error = nil;
