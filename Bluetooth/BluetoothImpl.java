@@ -19,6 +19,8 @@ import android.os.Message;
 import android.app.Activity;
 import android.util.Log;
 
+import com.foreign.Uno.*;
+
 public class BluetoothImpl
 {
 	private BluetoothAdapter bluetoothAdapter;
@@ -37,6 +39,8 @@ public class BluetoothImpl
 	StringBuffer buffer = new StringBuffer();
 	private String delimiter;
 
+	Action_String Callback;
+
 	private JSONObject deviceToJSON(BluetoothDevice device) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("name", device.getName());
@@ -48,8 +52,10 @@ public class BluetoothImpl
         return json;
     }
 
-	public BluetoothImpl()
+	public BluetoothImpl(Action_String _callback)
 	{
+		Callback = _callback;
+
 		if (bluetoothAdapter == null) {
 			bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		}
@@ -77,12 +83,13 @@ public class BluetoothImpl
                     try {
                     	JSONObject o = deviceToJSON(device);
                         unpairedDevices.put(o);
+						Callback.run(o.toString());
                     } catch (JSONException e) {
                         // This shouldn't happen, log and ignore
                         Log.e(TAG, "Problem converting device to JSON", e);
                     }
                 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                    //TODO: Return result (unpairedDevices)
+                    //Callback.run(unpairedDevices.toString());
                 }
             }
         };

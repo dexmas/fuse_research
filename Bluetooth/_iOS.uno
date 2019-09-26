@@ -11,7 +11,7 @@ namespace BlackCat
 	{
 		extern(iOS) ObjC.Object _impl;
 
-		public void Create(Action open, Action close, Action<string> error, Action<byte[]> receive)
+		public void Create(Action open, Action close, Action<string> error, Action<string> dfound, Action<byte[]> receive)
 		{
 
 		}

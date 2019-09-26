@@ -10,7 +10,7 @@ namespace BlackCat
 		static readonly BluetoothModule _instance;
 		readonly Bluetooth _bluetooth;
 
-		public BluetoothModule() : base(true, "open", "error", "close", "receive")
+		public BluetoothModule() : base(true, "open", "error", "close", "newdevice", "receive")
 		{
 			if(_instance != null) return;
 			Resource.SetGlobalKey(_instance = this, "BlackCat/Bluetooth");
@@ -19,6 +19,7 @@ namespace BlackCat
 			_bluetooth.OnOpen = _OnOpen;
 			_bluetooth.OnError = _OnError;
 			_bluetooth.OnClosed = _OnClosed;
+			_bluetooth.OnDeviceFound = _OnDeviceFound;
 			_bluetooth.OnRecieve = _OnRecieve;
 
 			AddMember(new NativeFunction("list", (NativeCallback)_List));
@@ -40,6 +41,11 @@ namespace BlackCat
 		void _OnClosed()
 		{
 			Emit("close", "");
+		}
+
+		void _OnDeviceFound(string device)
+		{
+			Emit("newdevice", device);
 		}
 
 		void _OnRecieve(byte[] data)

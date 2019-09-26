@@ -5,7 +5,7 @@ namespace BlackCat
 {
 	internal interface IBluetooth
 	{
-		void Create(Action open, Action close, Action<string> error, Action<byte[]> receive);
+		void Create(Action open, Action close, Action<string> error, Action<string> dfound, Action<byte[]> receive);
 		void List();
 		void Send(byte[] data);
 		void Connect(string _name);
@@ -14,7 +14,7 @@ namespace BlackCat
 
 	public class Bluetooth_Stub: IBluetooth
 	{
-		public void Create(Action open, Action close, Action<string> error, Action<byte[]> receive) {}
+		public void Create(Action open, Action close, Action<string> error, Action<string> dfound, Action<byte[]> receive) {}
 		public void List() {}
 		public void Send(byte[] _data) {}
 		public void Connect(string _name) {}
@@ -28,6 +28,7 @@ namespace BlackCat
 		public Action OnOpen;
 		public Action<string> OnError;
 		public Action OnClosed;
+		public Action<string> OnDeviceFound;
 		public Action<byte[]> OnRecieve;
 
 		public Bluetooth()
@@ -45,7 +46,7 @@ namespace BlackCat
 				_impl = new Bluetooth_Stub();
 			}
 
-			_impl.Create(_OnOpen, _OnClose, _OnError, _OnReceive);
+			_impl.Create(_OnOpen, _OnClose, _OnError, _OnDeviceFound, _OnReceive);
 		}
 
 		void _OnOpen()
@@ -58,6 +59,12 @@ namespace BlackCat
 		{
 			if (OnClosed != null)
 				OnClosed();
+		}
+
+		void _OnDeviceFound(string device)
+		{
+			if (OnDeviceFound != null)
+				OnDeviceFound(device);
 		}
 
 		void _OnReceive(byte[] data)

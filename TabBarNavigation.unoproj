@@ -10,7 +10,8 @@
 		"FuseJS",
 		"Fuse.Vibration",
 		"Fuse.GeoLocation",
-		"Fuse.Sensor"
+		"Fuse.Sensor",
+		"Uno.Permissions"
 	],
 	"Mobile": {
 		"Orientations": "Portrait"

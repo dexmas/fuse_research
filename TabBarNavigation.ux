@@ -45,8 +45,13 @@
 		GeoLocation.startListening(1000, 10);
 		Sensor.startListening(Sensor.ACCELEROMETER);
 
-		Bluetooth.list();
-		Bluetooth.connect("");
+		Bluetooth.on("newdevice", function(device) {
+			console.log("Found new device: " + device);
+
+			var devobj = JSON.parse(device);
+			jsondata.add(devobj);
+		});
+
 		Bluetooth.on("receive", function(data) {
 			
 		});
@@ -59,7 +64,11 @@
 		});
 
         function Vibrate() {
-			Discovery.Search();
+			//Discovery.Search();
+
+			jsondata.clear();
+			Bluetooth.list();
+			Bluetooth.connect("");
 
 			console.log("Vibrate");
             vibration.vibrate(1.0);
@@ -93,9 +102,9 @@
 		<ScrollView>
 			<StackPanel Orientation="Vertical" ItemSpacing="0" Alignment="Top" Margin="0, 0, 0, 0">
 				<Text Value="GPS: {latitude}, {longitude}" TextColor="#FCFCFC" Margin="15, 5, 15, 0" />
-				<Each Items="{jsondata}">
+				<Each Items="{jsondata}" Count="1">
 					<Rectangle CornerRadius="10" Color="#9C97FC" Height="40" Padding="0, 0, 0, 0" Margin="5, 5, 5, 0">
-						<Text Value="{LOCATION}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="30%" />
+						<Text Value="{name}" Alignment="CenterLeft" TextColor="#000" FontSize="22" Margin="0, 0, 0, 0" X="10" />
 					</Rectangle>
 				</Each>
 			</StackPanel>
