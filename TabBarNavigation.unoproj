@@ -42,6 +42,8 @@
 	"Discovery/Discovery.uno",
 	"Discovery/serviceDiscovery.java:Java:Android",
 	"Discovery/serviceDiscovery.h:CHeader:iOS",
-	"Discovery/serviceDiscovery.m:CSource:iOS"
+	"Discovery/serviceDiscovery.m:CSource:iOS",
+	"Discovery/XMLReader.h:CHeader:iOS",
+	"Discovery/XMLReader.m:CSource:iOS"
   ]
 }

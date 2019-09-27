@@ -1,4 +1,5 @@
 #import "serviceDiscovery.h"
+#import "XMLReader.h"
 
 NSMutableArray *serviceArr;
 serviceCallback Callback;
@@ -156,7 +157,11 @@ serviceCallback Callback;
     NSData * rdata = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
 
     if (response != nil) {
-        data[@"xml"] = [[NSString alloc] initWithData: rdata encoding:NSUTF8StringEncoding];
+        NSString* xmlstring = [[NSString alloc] initWithData: rdata encoding:NSUTF8StringEncoding];
+        NSDictionary *dics=[[NSDictionary alloc]initWithDictionary:[XMLReader dictionaryForXMLString:xmlstring error:nil]];
+        NSData *jsonxml = [NSJSONSerialization dataWithJSONObject:dics options:0 error:nil];
+        data[@"xml"] = [[NSString alloc] initWithData:jsonxml encoding:NSUTF8StringEncoding];
+
         [serviceArr addObject: data];
     } else
         NSLog(@"Error during fetch discovered XML data");
