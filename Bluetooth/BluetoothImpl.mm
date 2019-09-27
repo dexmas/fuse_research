@@ -472,7 +472,7 @@ CBUUID *writeCharacteristicUUID;
 
     [NSTimer scheduledTimerWithTimeInterval:(float)timeout target:self selector:@selector(scanTimer:) userInfo:nil repeats:NO];
 
-#if TARGET_OS_IPHONE
+/*#if TARGET_OS_IPHONE
     redBearLabsServiceUUID = [CBUUID UUIDWithString:@RBL_SERVICE_UUID];
     adafruitServiceUUID = [CBUUID UUIDWithString:@ADAFRUIT_SERVICE_UUID];
     lairdServiceUUID = [CBUUID UUIDWithString:@LAIRD_SERVICE_UUID];
@@ -483,9 +483,9 @@ CBUUID *writeCharacteristicUUID;
     NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID, blueGigaServiceUUID, hm10ServiceUUID, 
                         hc02AdvUUID];
     [self.CM scanForPeripheralsWithServices:services options: nil];
-#else
+#else*/0
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
-#endif
+/*#endif*/
 
     NSLog(@"scanForPeripheralsWithServices");
 
