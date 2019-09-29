@@ -68,7 +68,7 @@
 
 			jsondata.clear();
 			Bluetooth.list();
-			Bluetooth.connect("");
+			//Bluetooth.connect("");
 
 			console.log("Vibrate");
             vibration.vibrate(1.0);

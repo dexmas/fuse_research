@@ -43,6 +43,8 @@
 
 #define RBL_BLE_FRAMEWORK_VER                    0x0200
 
+typedef void (^foundCallback)(NSString* device);
+
 @interface CBPeripheral(com_megster_bluetoothserial_extension)
 
 @property (nonatomic, retain) NSString *btsAdvertising;
@@ -81,6 +83,7 @@
 
 -(void) controlSetup;
 -(int) findBLEPeripherals:(int) timeout;
+-(void) scan:(int)timeout;
 -(void) connectPeripheral:(CBPeripheral *)peripheral;
 
 -(UInt16) swap:(UInt16) s;
@@ -102,7 +105,7 @@
 -(BOOL) UUIDSAreEqual:(NSUUID *)UUID1 UUID2:(NSUUID *)UUID2;
 
 
--(void)Init;
+-(instancetype)Init: (foundCallback) callback;
 -(void)Destroy;
 
 @end

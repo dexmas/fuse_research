@@ -14,14 +14,15 @@ namespace BlackCat
 		[Foreign(Language.ObjC)]
 		public void Create(Action open, Action close, Action<string> error, Action<string> dfound, Action<byte[]> receive)
 		@{
-			BluetoothImpl* impl = [[BluetoothImpl alloc] Init];
+			BluetoothImpl* impl = [[BluetoothImpl alloc] Init: dfound];
 			@{Bluetooth_iOS:Of(_this)._impl:Set(impl)};
 		@}
 
 		[Foreign(Language.ObjC)]
 		public void List() 
 		@{
-			[@{Bluetooth_iOS:Of(_this)._impl:Get()} scanForBLEPeripherals: 10];
+			BluetoothImpl* impl = @{Bluetooth_iOS:Of(_this)._impl:Get()};
+			[impl scan: 10];
 		@}
 
 		[Foreign(Language.ObjC)]

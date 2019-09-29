@@ -54,6 +54,8 @@ static char BTS_ADVERTISEMENT_RSSI_IDENTIFER;
 - (void)connectUuidTimer:(NSTimer *)timer;
 @end
 
+foundCallback btCallback;
+
 @implementation BluetoothImpl
 
 @synthesize CM;
@@ -75,14 +77,18 @@ CBUUID *serialServiceUUID;
 CBUUID *readCharacteristicUUID;
 CBUUID *writeCharacteristicUUID;
 
-- (void)Init {
+- (instancetype)Init: (foundCallback) callback {
 
     NSLog(@"Fuse Bluetooth Serial Plugin");
     NSLog(@"(c)2019 iDeXmas");
 
+    btCallback = callback;
+
     [self controlSetup];
 
     _buffer = [[NSMutableString alloc] init];
+
+    return self;
 }
 
 - (void)Destroy {
@@ -228,7 +234,7 @@ CBUUID *writeCharacteristicUUID;
 
 // Ideally we'd get a callback when found, maybe _bleShield can be modified
 // to callback on centralManager:didRetrievePeripherals. For now, use a timer.
-- (void)scanForBLEPeripherals:(int)timeout {
+- (void)scan:(int)timeout {
     NSLog(@"Scanning for BLE Peripherals");
 
     // disconnect
@@ -249,7 +255,7 @@ CBUUID *writeCharacteristicUUID;
 }
 
 - (void)connectToFirstDevice {
-    [self scanForBLEPeripherals:3];
+    [self scan:3];
     [NSTimer scheduledTimerWithTimeInterval:(float)3.0
                                      target:self
                                    selector:@selector(connectFirstDeviceTimer:)
@@ -263,7 +269,7 @@ CBUUID *writeCharacteristicUUID;
 
     if (peripherals.count < 1) {
         interval = 3;
-        [self scanForBLEPeripherals:interval];
+        [self scan:interval];
     }
 
     [NSTimer scheduledTimerWithTimeInterval:interval
@@ -483,7 +489,7 @@ CBUUID *writeCharacteristicUUID;
     NSArray *services = @[redBearLabsServiceUUID, adafruitServiceUUID, lairdServiceUUID, blueGigaServiceUUID, hm10ServiceUUID, 
                         hc02AdvUUID];
     [self.CM scanForPeripheralsWithServices:services options: nil];
-#else*/0
+#else*/
     [self.CM scanForPeripheralsWithServices:nil options:nil]; // Start scanning
 /*#endif*/
 
@@ -738,6 +744,26 @@ CBUUID *writeCharacteristicUUID;
         [self.peripherals addObject:peripheral];
 
         NSLog(@"New UUID, adding");
+
+        NSMutableDictionary *per = [NSMutableDictionary dictionary];
+
+        NSString *uuid = peripheral.identifier.UUIDString;
+        [per setObject: uuid forKey: @"uuid"];
+        [per setObject: uuid forKey: @"id"];
+
+        NSString *name = [peripheral name];
+        if (!name) {
+            name = [per objectForKey:@"uuid"];
+        }
+        [per setObject: name forKey: @"name"];
+
+        NSNumber *rssi = [peripheral btsAdvertisementRSSI];
+        if (rssi) { // BLEShield doesn't provide advertised RSSI
+            [per setObject: rssi forKey:@"rssi"];
+        }
+
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:per options:0 error:nil];
+        btCallback([[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
     }
 
     NSLog(@"didDiscoverPeripheral");
